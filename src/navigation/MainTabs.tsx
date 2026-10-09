@@ -5,6 +5,7 @@ import { ShopStack } from '@navigation/ShopStack';
 import { CartScreen } from '@screens/CartScreen';
 import { MeScreen } from '@screens/MeScreen';
 import { COLORS } from '@constants/theme';
+import { useCartStore } from '@stores/cartStore';
 
 export type MainTabParamList = {
   ShopTab: undefined;
@@ -15,6 +16,8 @@ export type MainTabParamList = {
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const MainTabs = () => {
+  const totalQty = useCartStore((s) => s.totalQuantity());
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -44,7 +47,7 @@ export const MainTabs = () => {
         options={{
           title: 'Giỏ',
           tabBarIcon: () => <Text style={styles.icon}>🛒</Text>,
-          tabBarBadge: undefined, // Sẽ nối với Zustand ở Câu 3a
+          tabBarBadge: totalQty > 0 ? totalQty : undefined,
         }}
       />
       <Tab.Screen

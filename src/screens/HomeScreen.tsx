@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StyleSheet,
+  Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
@@ -17,6 +18,7 @@ import { Watermark } from '@components/Watermark';
 import { ProductCard } from '@components/ProductCard';
 import { fetchProducts, ProductItem } from '@services/productApi';
 import { useDebouncedValue } from '@hooks/useDebouncedValue';
+import { useCartStore } from '@stores/cartStore';
 import {
   STUDENT,
   ROOM_LABEL,
@@ -33,8 +35,8 @@ export const HomeScreen = () => {
   const navigation = useNavigation<HomeNavProp>();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebouncedValue(searchTerm, DEBOUNCE_MS);
+  const addItem = useCartStore((state) => state.addItem);
 
-  // React Query quản lý Server State, thời gian cache theo STALE_TIME_MS (21s)
   const {
     data: products,
     isLoading,
@@ -47,7 +49,6 @@ export const HomeScreen = () => {
     staleTime: STALE_TIME_MS,
   });
 
-  // Lọc sản phẩm theo chuỗi đã Debounce
   const filteredProducts = useMemo(() => {
     if (!products) return [];
     if (!debouncedSearch.trim()) return products;
@@ -56,8 +57,13 @@ export const HomeScreen = () => {
     );
   }, [products, debouncedSearch]);
 
+  // Rung phản hồi Haptic đúng VARIANT (Số cuối 1 là selection)
+const handleAddToCart = (product: ProductItem) => {
+    addItem(product);
+  };
+
   const renderContent = () => {
-    // TRẠNG THÁI 1: ĐANG TẢI (ActivityIndicator xoay)
+    // 1. Cảnh ĐANG TẢI
     if (isLoading) {
       return (
         <View style={styles.centerContainer}>
@@ -67,7 +73,7 @@ export const HomeScreen = () => {
       );
     }
 
-    // TRẠNG THÁI 2: LỖI MẠNG (Hiện rõ MSSV và nút Thử lại đúng đề)
+    // 2. Cảnh LỖI MẠNG (Có MSSV 23735511 + nút Thử lại)
     if (isError) {
       return (
         <View style={styles.centerContainer}>
@@ -80,7 +86,7 @@ export const HomeScreen = () => {
       );
     }
 
-    // TRẠNG THÁI 3: CÓ DỮ LIỆU LƯỚI 2 CỘT (FlashList numColumns=2)
+    // 3. Cảnh CÓ DỮ LIỆU LƯỚI 2 CỘT
     return (
       <View style={styles.listContainer}>
         <FlashList
@@ -95,9 +101,7 @@ export const HomeScreen = () => {
             <ProductCard
               item={item}
               onPress={() => navigation.navigate('Detail', { id: String(item.id) })}
-              onAddToCart={() => {
-                // Sẽ nối vào CartStore ở Câu 3
-              }}
+              onAddToCart={() => handleAddToCart(item)}
             />
           )}
         />
@@ -109,13 +113,13 @@ export const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       {VARIANT.watermarkAtTop && <Watermark />}
 
-      {/* Header (A) */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>KTXGO</Text>
         <Text style={styles.headerSub}>Giao tận {ROOM_LABEL}</Text>
       </View>
 
-      {/* Ô tìm kiếm Debounce (B) */}
+      {/* Ô tìm kiếm Debounce */}
       <View style={styles.searchBox}>
         <TextInput
           style={styles.searchInput}
@@ -126,7 +130,7 @@ export const HomeScreen = () => {
         />
       </View>
 
-      {/* Nội dung 3 trạng thái (C) */}
+      {/* Nội dung lưới */}
       {renderContent()}
 
       {!VARIANT.watermarkAtTop && <Watermark />}
