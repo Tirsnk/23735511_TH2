@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ShopStack } from '@navigation/ShopStack';
 import { CartScreen } from '@screens/CartScreen';
@@ -23,28 +24,43 @@ export const MainTabs = () => {
         tabBarStyle: {
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.border,
+          height: 60,
+          paddingBottom: 6,
+          paddingTop: 6,
         },
       }}
     >
-      {/* Thứ tự đúng số cuối 1: Cửa hàng -> Giỏ -> Tôi */}
       <Tab.Screen
         name="ShopTab"
         component={ShopStack}
-        options={{ title: 'Cửa hàng' }}
+        options={{
+          title: 'Cửa hàng',
+          tabBarIcon: () => <Text style={styles.icon}>🏪</Text>,
+        }}
       />
       <Tab.Screen
         name="CartTab"
         component={CartScreen}
         options={{
           title: 'Giỏ',
-          tabBarBadge: undefined, // Sẽ nối với số lượng giỏ hàng ở Câu 3a
+          tabBarIcon: () => <Text style={styles.icon}>🛒</Text>,
+          tabBarBadge: undefined, // Sẽ nối với Zustand ở Câu 3a
         }}
       />
       <Tab.Screen
         name="MeTab"
         component={MeScreen}
-        options={{ title: 'Tôi' }}
+        options={{
+          title: 'Tôi',
+          tabBarIcon: () => <Text style={styles.icon}>👤</Text>,
+        }}
       />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  icon: {
+    fontSize: 20,
+  },
+});

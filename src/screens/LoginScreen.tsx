@@ -33,7 +33,7 @@ export const LoginScreen = () => {
             style={styles.input}
             value={inputValue}
             onChangeText={setInputValue}
-            placeholder={isEmail ? 'Nhập email sinh viên' : 'Nhập số điện thoại'}
+            placeholder={isEmail ? 'Nhập email sinh viên' : 'Nhập số điện thoại- 23735511'}
             keyboardType={isEmail ? 'email-address' : 'phone-pad'}
             autoCapitalize="none"
           />
